@@ -1,0 +1,99 @@
+$url = "http://sdk-for-net.amazonwebservices.com/latest/AWSToolsAndSDKForNet.msi"
+$output = "$PSScriptRoot\AWSToolsAndSDKForNet.msi"
+$start_time = Get-Date
+
+Import-Module BitsTransfer
+Start-BitsTransfer -Source $url -Destination $output
+#OR
+Start-BitsTransfer -Source $url -Destination $output -Asynchronous
+
+Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+
+
+
+$source = "http://yoursite.com/file.xml"
+$destination = "c:\application\data\newdata.xml"
+ 
+Invoke-WebRequest $source -OutFile $destination
+
+$Job = Start-BitsTransfer -Source http://sdk-for-net.amazonwebservices.com/latest/AWSToolsAndSDKForNet.msi `
+       -Destination c:\temp\ -Asynchronous
+
+while (($Job.JobState -eq "Transferring") -or ($Job.JobState -eq "Connecting")) `
+       { sleep 5;} # Poll for status, sleep for 5 seconds, or perform an action.
+
+Switch($Job.JobState)
+{
+	"Transferred" {Complete-BitsTransfer -BitsJob $Job}
+	"Error" {$Job | Format-List } # List the errors.
+	default {"Other action"} #  Perform corrective action.
+}
+
+
+-Download Tools
+
+Import-CSV Filestocollect.txt | Start-BitsTransfer -TransferType download
+
+
+invoke-expression "F:\vcsa-cli-installer\win32\vcsa-deploy.exe 'c:\Users\gareth.edwards\Documents\vDM\CHScripts\embedded_vCSA_on_ESXi.json' --accept-eula"
+
+
+$shell = New-Object -ComObject Wscript.Shell
+
+Set-ExecutionPolicy Unrestricted | echo $shell.sendkeys("Y`r`n")
+
+---Add Server
+
+Connect-VIServer ge-umrk-vcsa01.utilitymuffinresearchkitchen.orgs
+$folder = Get-Folder -NoRecursion | New-Folder -Name GE-Folder
+New-Datacenter -Location $folder -Name GE-UMRK-DC | fl
+Add-VMHost ge-umrk-esx01.utilitymuffinresearchkitchen.org -Location GE-UMRK-DC -User root -Password MySe3curePassw0rd -Force
+
+
+Import HTML5 OVA-----
+
+$ovfpath = "C:\temp\h5ngcVA-1.15.0.0-4144640_OVF10.ova"
+$ovfConfig = Get-OvfConfiguration -Ovf $ovfpath
+$ovfConfig.ToHashTable() | ft -autosize
+$ovfConfig.NetworkMapping.Network_1.Value = "Internal"
+$ovfConfig.IpAssignment.IpProtocol.Value = "IPv4"
+$ovfConfig.IpAssignment.IpAllocationPolicy.Value = "dhcpPolicy"
+
+$vmHost = Get-VMHost -Name "ge-umrk-esx01*"
+Import-vApp -Source "C:\temp\h5ngcVA-1.15.0.0-4144640_OVF10.ova" -OvfConfiguration $ovfConfig -VMHost $vmHost -Name "vSphere HTML5" -DiskStorageFormat Thin -force
+$vm = get-vm -name "vSpher*"
+Start-VM $vm
+$vm | Select Name, @{N="IP Address";E={@($_.guest.IPAddress[0])}}
+
+
+
+Import AWS OVA-----
+
+$vmHost = Get-VMHost -Name "ge-umrk-esx01*"
+Import-vApp -Source "C:\temp\AWS-Connector.ova" -VMHost $vmHost
+$vm = get-vm -name "AWS*"
+get-vm $vm | Get-NetworkAdapter -name "*1" |  Set-NetworkAdapter -NetworkName "Internal" -Confirm:$false
+Start-VM $vm
+Get-VM -name "AWS*" | Select Name, @{N="IP Address";E={@($_.guest.IPAddress[0])}}
+
+----- Set things ready for html
+
+ssh ge-umrk-vcsa01.utilitymuffinresearchkitchen.org
+login as root
+shell.set --enable True
+shell
+/usr/bin/chsh -s "/bin/bash" root
+
+/usr/bin/chsh -s /bin/appliancesh root
+
+----- Set thing on html ova
+
+goto https://192.168.90.52:5480/#network.Address or its ip and set static first
+
+
+
+ssh to ova and 
+/etc/init.d/configui configure --start yes --user root --vc <IP_Address_Of_vCenter> 
+enter root password and wait....
+
+

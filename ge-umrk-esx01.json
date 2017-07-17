@@ -1,0 +1,39 @@
+{
+    "__version": "1.1",
+    "__comments": "Sample template to deploy a vCenter Server with an embedded Platform Services Controller to an ESXi host.",
+    "target.vcsa": {
+        "appliance": {
+            "deployment.network": "Internal",
+            "deployment.option": "small",
+            "name": "GE-UMRK-VCSA",
+            "thin.disk.mode": true
+        },
+        "esx": {
+            "hostname": "ge-umrk-esx01.utilitymuffinresearchkitchen.org",
+            "username": "root",
+            "password": "MySe3curePassw0rd",
+            "datastore": "DS1"
+        },
+        "network": {
+            "hostname": "ge-umrk-vcsa01.utilitymuffinresearchkitchen.org",
+            "dns.servers": [
+                "192.168.90.254",
+                "205.251.196.215"
+            ],
+            "gateway": "192.168.90.254",
+            "ip": "192.168.90.5",
+            "ip.family": "ipv4",
+            "mode": "static",
+            "prefix": "24"
+        },
+        "os": {
+            "password": "MySe3curePassw0rd",
+            "ssh.enable": true
+        },
+        "sso": {
+            "password": "MySe3curePassw0rd",
+            "domain-name": "vsphere.umrk",
+            "site-name": "BMCSite"
+        }
+    }
+}
